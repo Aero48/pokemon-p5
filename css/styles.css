@@ -1,0 +1,21 @@
+@font-face {
+    font-family: pokemon;
+    src: url(./fonts/pokefont.ttf);
+  }
+
+nav {
+    margin: 0;
+    height: 50px;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: black;
+    margin-bottom: 50px;
+}
+
+h1 {
+    font-size: 50px;
+    margin: 0 auto;
+    text-align: center;
+}
