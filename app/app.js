@@ -280,6 +280,7 @@ function preload() {
 
 // Setup function for p5. Initializes canvas & fonts
 function setup() {
+  frameRate(60);
   updateCanvasScale();
   cvs = createCanvas(160 * canvasScale, 144 * canvasScale);
   cvs.position(windowWidth / 2 - (160 * canvasScale) / 2, 200);
