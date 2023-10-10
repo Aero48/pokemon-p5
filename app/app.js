@@ -115,7 +115,7 @@ async function preEncounter(poke) {
   encounterLevel = Math.floor(
     Math.random() * (poke.maxLevel - poke.minLevel) + poke.minLevel
   );
-  
+
   // Delay for encounter start animation
   setTimeout(() => {
     encounter(encounterPokemon.name);
@@ -249,13 +249,13 @@ function calcCatch(catchRate, level, ball) {
 }
 
 // Resets variables when encounter is complete
-function encounterComplete(){
-    currentMenu = "none";
-    encounterMenu = false;
-    encounterInteract = false;
-    inEncounter = false;
-    activeBerry = "none";
-    encounterNearlyDone = false;
+function encounterComplete() {
+  currentMenu = "none";
+  encounterMenu = false;
+  encounterInteract = false;
+  inEncounter = false;
+  activeBerry = "none";
+  encounterNearlyDone = false;
 }
 
 // Preload function for p5. Loads static image files
@@ -280,7 +280,6 @@ function preload() {
 
 // Setup function for p5. Initializes canvas & fonts
 function setup() {
-  frameRate(60);
   updateCanvasScale();
   cvs = createCanvas(160 * canvasScale, 144 * canvasScale);
   cvs.position(windowWidth / 2 - (160 * canvasScale) / 2, 200);
@@ -346,7 +345,7 @@ function draw() {
         image(runBtn, 104 * canvasScale, 109 * canvasScale);
       }
 
-      if (currentMenu == "ball"){
+      if (currentMenu == "ball") {
         pokeballBtn.resizeNN(48 * canvasScale, 24 * canvasScale);
         greatballBtn.resizeNN(48 * canvasScale, 24 * canvasScale);
         ultraballBtn.resizeNN(48 * canvasScale, 24 * canvasScale);
@@ -378,12 +377,12 @@ function windowResized() {
 function mouseClicked() {
   //Either moves on to main encounter menu, or ends the encounter depending on booleans
   if (encounterInteract & !encounterMenu) {
-    if (!encounterNearlyDone){
-        showEncounterMenu();
-    }else{
-        encounterComplete();
+    if (!encounterNearlyDone) {
+      showEncounterMenu();
+    } else {
+      encounterComplete();
     }
-    
+
   }
 
   if (encounterMenu) {
@@ -396,7 +395,7 @@ function mouseClicked() {
         mouseY < (109 + 24) * canvasScale
       ) {
         setTimeout(() => {
-            currentMenu = "ball";
+          currentMenu = "ball";
         }, 10);
         //calcCatch(encounterPokemon.capture_rate, encounterLevel, 2);
       }
@@ -425,42 +424,42 @@ function mouseClicked() {
     }
 
     // POKEBALL MENU CLICK LISTENERS
-    if (currentMenu == "ball"){
-        if (
-            mouseX > 8 * canvasScale &&
-            mouseX < (8 + 48) * canvasScale &&
-            mouseY > 109 * canvasScale &&
-            mouseY < (109 + 24) * canvasScale &&
-            playerData.pokeballs.poke > 0
-          ) { 
-            calcCatch(encounterPokemon.capture_rate, encounterLevel, 1);
-            currentMenu = "none";
-            playerData.pokeballs.poke--;
-          }
-    
-          if (
-            mouseX > 56 * canvasScale &&
-            mouseX < (56 + 48) * canvasScale &&
-            mouseY > 109 * canvasScale &&
-            mouseY < (109 + 24) * canvasScale &&
-            playerData.pokeballs.great > 0
-          ) {
-            calcCatch(encounterPokemon.capture_rate, encounterLevel, 1.5);
-            currentMenu = "none";
-            playerData.pokeballs.great--;
-          }
-    
-          if (
-            mouseX > 104 * canvasScale &&
-            mouseX < (104 + 48) * canvasScale &&
-            mouseY > 109 * canvasScale &&
-            mouseY < (109 + 24) * canvasScale &&
-            playerData.pokeballs.ultra > 0
-          ) {
-            calcCatch(encounterPokemon.capture_rate, encounterLevel, 2);
-            currentMenu = "none"
-            playerData.pokeballs.ultra--;
-          }
+    if (currentMenu == "ball") {
+      if (
+        mouseX > 8 * canvasScale &&
+        mouseX < (8 + 48) * canvasScale &&
+        mouseY > 109 * canvasScale &&
+        mouseY < (109 + 24) * canvasScale &&
+        playerData.pokeballs.poke > 0
+      ) {
+        calcCatch(encounterPokemon.capture_rate, encounterLevel, 1);
+        currentMenu = "none";
+        playerData.pokeballs.poke--;
+      }
+
+      if (
+        mouseX > 56 * canvasScale &&
+        mouseX < (56 + 48) * canvasScale &&
+        mouseY > 109 * canvasScale &&
+        mouseY < (109 + 24) * canvasScale &&
+        playerData.pokeballs.great > 0
+      ) {
+        calcCatch(encounterPokemon.capture_rate, encounterLevel, 1.5);
+        currentMenu = "none";
+        playerData.pokeballs.great--;
+      }
+
+      if (
+        mouseX > 104 * canvasScale &&
+        mouseX < (104 + 48) * canvasScale &&
+        mouseY > 109 * canvasScale &&
+        mouseY < (109 + 24) * canvasScale &&
+        playerData.pokeballs.ultra > 0
+      ) {
+        calcCatch(encounterPokemon.capture_rate, encounterLevel, 2);
+        currentMenu = "none"
+        playerData.pokeballs.ultra--;
+      }
     }
   }
 }
