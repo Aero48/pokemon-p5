@@ -124,7 +124,7 @@ async function preEncounter(poke) {
 
 // Runs when preEncounter is finished
 async function encounter(poke) {
-  pokemon = await loadImage(`../images/${poke}.png`);
+  pokemon = await loadImage(`./images/${poke}.png`);
   targetPokeX = 96;
   targetTrainerX = 16;
   grayscale = true;
@@ -260,22 +260,22 @@ function encounterComplete() {
 
 // Preload function for p5. Loads static image files
 function preload() {
-  pokeFont = loadFont("../css/fonts/pokefont.ttf");
-  pokemon = loadImage("../images/ditto.png");
-  trainer = loadImage("../images/trainer.png");
-  textbox = loadImage("../images/textbox.png");
-  smallMenu = loadImage("../images/small_menu.png");
+  pokeFont = loadFont("./css/fonts/pokefont.ttf");
+  pokemon = loadImage("./images/ditto.png");
+  trainer = loadImage("./images/trainer.png");
+  textbox = loadImage("./images/textbox.png");
+  smallMenu = loadImage("./images/small_menu.png");
 
-  pokemonUI = loadImage("../images/pokemon_ui.png");
-  levelIcon = loadImage("../images/lvl_icon.png");
+  pokemonUI = loadImage("./images/pokemon_ui.png");
+  levelIcon = loadImage("./images/lvl_icon.png");
 
-  ballBtn = loadImage("../images/ball_btn.png");
-  itemBtn = loadImage("../images/item_btn.png");
-  runBtn = loadImage("../images/run_btn.png");
+  ballBtn = loadImage("./images/ball_btn.png");
+  itemBtn = loadImage("./images/item_btn.png");
+  runBtn = loadImage("./images/run_btn.png");
 
-  pokeballBtn = loadImage("../images/pokeball_btn.png");
-  greatballBtn = loadImage("../images/greatball_btn.png");
-  ultraballBtn = loadImage("../images/ultraball_btn.png");
+  pokeballBtn = loadImage("./images/pokeball_btn.png");
+  greatballBtn = loadImage("./images/greatball_btn.png");
+  ultraballBtn = loadImage("./images/ultraball_btn.png");
 }
 
 // Setup function for p5. Initializes canvas & fonts
@@ -374,7 +374,7 @@ function windowResized() {
   cvs.position(windowWidth / 2 - (160 * canvasScale) / 2, 200);
 }
 
-function mouseClicked() {
+function screenInteract() {
   //Either moves on to main encounter menu, or ends the encounter depending on booleans
   if (encounterInteract & !encounterMenu) {
     if (!encounterNearlyDone) {
@@ -462,4 +462,12 @@ function mouseClicked() {
       }
     }
   }
+}
+
+function mouseClicked() {
+  screenInteract();
+}
+
+function touchEnded() {
+  screenInteract();
 }
