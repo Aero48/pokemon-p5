@@ -38,6 +38,18 @@ let locationPokemon = [
     minLevel: 20,
     maxLevel: 30,
   },
+  {
+    name: "gligar",
+    poolVal: 30,
+    minLevel: 17,
+    maxLevel: 30,
+  },
+  {
+    name: "jumpluff",
+    poolVal: 30,
+    minLevel: 40,
+    maxLevel: 60,
+  },
 ];
 
 let pokemon;
@@ -47,12 +59,32 @@ let ballBtn;
 let itemBtn;
 let runBtn;
 
+let throwable;
+let ballBottom;
+let ballTop;
+
+let wobbleFrame = 0;
+
 let pokeX = -56;
 let pokeY = 0;
 
 let trainerX = 208;
 let trainerY = 48;
 let canvasScale = 4;
+
+let itemX = 66;
+let itemY = 76;
+let itemYVel = 0;
+let itemYAcc = 0;
+
+let finalBallX = 124;
+
+let ballBottomY = 48;
+let ballTopY = 48;
+let ballTopYVel = 0;
+let ballTopYAcc = 0;
+
+let ballStationaryX = 123;
 
 let targetPokeX = -56;
 let targetPokeY = 0;
@@ -65,6 +97,7 @@ let encounterLevel;
 
 let encounterText = "";
 
+let itemThrown;
 let throwMod = 20;
 
 let pokeFont;
@@ -86,6 +119,15 @@ let activeBerry = "none";
 
 // Indicates whether next click ends the encounter
 let encounterNearlyDone = false;
+
+pokeInBall = false;
+
+let throwing = false;
+
+let ballOpen = false;
+let ballParticle = false;
+let ballRocking = false;
+let ballCaught = false;
 
 // is screen grayscale? (encounter only)
 let grayscale = false;
@@ -203,33 +245,45 @@ function calcCatch(catchRate, level, ball) {
       console.log("Oh no! The Pokémon broke free!");
       currentMenu = "none";
       encounterMenu = false;
+      ballRocking = false;
+      pokeInBall = false;
       encounterText = "Oh no! The Pokémon broke free!";
       return;
     } else {
+
       console.log("wobble");
+      wobbleAnim();
       setTimeout(() => {
         if (ballWobble(y)) {
           console.log("Aww! It appeared to be caught!");
           currentMenu = "none";
           encounterMenu = false;
+          ballRocking = false;
+          pokeInBall = false;
           encounterText = "Aww! It appeared to be caught!";
           return;
         } else {
           console.log("wobble");
+          wobbleAnim();
           setTimeout(() => {
             if (ballWobble(y)) {
               console.log("Aargh! Almost had it!");
               currentMenu = "none";
               encounterMenu = false;
+              ballRocking = false;
+              pokeInBall = false;
               encounterText = "Aargh! Almost had it!";
               return;
             } else {
               console.log("wobble");
+              wobbleAnim();
               setTimeout(() => {
                 if (ballWobble(y)) {
                   console.log("Shoot! It was so close, too!");
                   currentMenu = "none";
                   encounterMenu = false;
+                  ballRocking = false;
+                  pokeInBall = false;
                   encounterText = "Shoot! It was so close, too!";
                   return;
                 } else {
@@ -239,13 +293,13 @@ function calcCatch(catchRate, level, ball) {
                   encounterNearlyDone = true;
                   encounterText = `Gotcha! ${encounterPokemon.name.toUpperCase()} was caught!`;
                 }
-              }, 1500);
+              }, 800);
             }
-          }, 1500);
+          }, 800);
         }
-      }, 1500);
+      }, 800);
     }
-  }, 4000);
+  }, 3000);
 }
 
 // Resets variables when encounter is complete
@@ -256,7 +310,88 @@ function encounterComplete() {
   inEncounter = false;
   activeBerry = "none";
   encounterNearlyDone = false;
+  pokeInBall = false;
+  ballRocking = false;
+  ballCaught = false;
+  
 }
+
+function throwItem(itemName){
+  if (itemName == "pokeball"){
+    throwable = loadImage("./images/pokeball.png");
+    ballTop = loadImage("./images/pokeball_top.png");
+    ballBottom = loadImage("./images/pokeball_bottom.png");
+    ballStationary = loadImage("./images/pokeball.png");
+    ballWobble1 = loadImage("./images/pokeball_1.png");
+    ballWobble2 = loadImage("./images/pokeball_2.png");
+    calcCatch(encounterPokemon.capture_rate, encounterLevel, 1);
+    setTimeout(() => {
+      ballOpen = true;
+      ballOpenAnim();
+    },500)
+
+  }
+
+  if (itemName == "greatball"){
+    throwable = loadImage("./images/greatball.png");
+    ballTop = loadImage("./images/greatball_top.png");
+    ballBottom = loadImage("./images/greatball_bottom.png");
+    ballStationary = loadImage("./images/greatball.png");
+    ballWobble1 = loadImage("./images/greatball_1.png");
+    ballWobble2 = loadImage("./images/greatball_2.png");
+    calcCatch(encounterPokemon.capture_rate, encounterLevel, 1.5);
+    setTimeout(() => {
+      ballOpen = true;
+      ballOpenAnim();
+    },500)
+  }
+
+  if (itemName == "ultraball"){
+    throwable = loadImage("./images/ultraball.png");
+    ballTop = loadImage("./images/ultraball_top.png");
+    ballBottom = loadImage("./images/ultraball_bottom.png");
+    ballStationary = loadImage("./images/ultraball.png");
+    ballWobble1 = loadImage("./images/ultraball_1.png");
+    ballWobble2 = loadImage("./images/ultraball_2.png");
+    calcCatch(encounterPokemon.capture_rate, encounterLevel, 2);
+    setTimeout(() => {
+      ballOpen = true;
+      ballOpenAnim();
+    },500)
+  }
+  itemThrown = itemName;
+  itemTargetX = 123;
+  itemX = 65;
+  itemY = 76;
+  itemYVel = -8.6;
+  itemYAcc = 0.5;
+  throwing = true;
+}
+
+function ballOpenAnim(){
+  ballTopYVel = -5;
+  ballTopYAcc = 0.25;
+  pokeInBall = true;
+
+  setTimeout(() => {
+    ballRocking = true;
+  }, 700)
+
+}
+
+function wobbleAnim(){
+  wobbleFrame = 1;
+  setTimeout(() => {
+    wobbleFrame = 0;
+  }, 150);
+  setTimeout(() => {
+    wobbleFrame = 2;
+  }, 300);
+  setTimeout(() => {
+    wobbleFrame = 0;
+  }, 450);
+}
+
 
 // Preload function for p5. Loads static image files
 function preload() {
@@ -276,6 +411,22 @@ function preload() {
   pokeballBtn = loadImage("./images/pokeball_btn.png");
   greatballBtn = loadImage("./images/greatball_btn.png");
   ultraballBtn = loadImage("./images/ultraball_btn.png");
+
+  throwable = loadImage("./images/ultraball.png");
+  throwable = loadImage("./images/greatball.png");
+  throwable = loadImage("./images/pokeball.png");
+
+  ballTop = loadImage("./images/ultraball_top.png");
+  ballTop = loadImage("./images/greatball_top.png");
+  ballTop = loadImage("./images/pokeball_top.png");
+
+  ballBottom = loadImage("./images/ultraball_bottom.png");
+  ballBottom = loadImage("./images/greatball_bottom.png");
+  ballBottom = loadImage("./images/pokeball_bottom.png");
+
+  ballStationary = loadImage("./images/pokeball.png");
+  ballWobble1 = loadImage("./images/pokeball_1.png");
+  ballWobble2 = loadImage("./images/pokeball_2.png");
 }
 
 // Setup function for p5. Initializes canvas & fonts
@@ -292,7 +443,7 @@ function setup() {
 
 // Runs every frame in p5.
 function draw() {
-  background(100);
+  background(255);
 
   // Everything to render only during an encounter
   if (inEncounter) {
@@ -310,8 +461,18 @@ function draw() {
     textbox.resizeNN(160 * canvasScale, 48 * canvasScale);
     smallMenu.resizeNN(96 * canvasScale, 48 * canvasScale);
     pokemon.resizeNN(56 * canvasScale, 56 * canvasScale);
+    throwable.resizeNN(14*canvasScale, 12*canvasScale);
+    ballTop.resizeNN(12*canvasScale, 12*canvasScale);
+    ballBottom.resizeNN(12*canvasScale, 12*canvasScale);
+    
+    ballStationary.resizeNN(14*canvasScale, 12*canvasScale);
+    ballWobble1.resizeNN(14*canvasScale, 12*canvasScale);
+    ballWobble2.resizeNN(14*canvasScale, 12*canvasScale);
 
-    image(pokemon, pokeX * canvasScale, pokeY * canvasScale);
+    if (pokeInBall == false){
+      image(pokemon, pokeX * canvasScale, pokeY * canvasScale);
+    }
+    
     image(trainer, trainerX * canvasScale, trainerY * canvasScale);
     image(textbox, 0, 96 * canvasScale);
     textSize(8 * canvasScale);
@@ -360,10 +521,50 @@ function draw() {
       }
     }
 
+    if (throwing){
+      image(throwable, itemX*canvasScale, itemY*canvasScale);
+      if (itemX*canvasScale < itemTargetX*canvasScale){
+        itemX += 2;
+        itemYVel += itemYAcc;
+        itemY += itemYVel;
+      }else{
+        throwing = false;
+      }
+    }
+
+    if (ballOpen) {
+      image(ballBottom, finalBallX*canvasScale, ballBottomY*canvasScale);
+      image(ballTop, finalBallX*canvasScale, ballTopY*canvasScale);
+
+      ballTopYVel += ballTopYAcc;
+      ballTopY+=ballTopYVel;
+
+      if (ballTopY > ballBottomY){
+        ballOpen = false;
+        ballTopY = ballBottomY;
+      }
+    }
+
+    if (ballRocking){
+      if (wobbleFrame == 0){
+        image(ballStationary, ballStationaryX*canvasScale, ballBottomY*canvasScale);
+      }
+      if(wobbleFrame == 1){
+        image(ballWobble1, ballStationaryX*canvasScale, ballBottomY*canvasScale);
+      }
+      if(wobbleFrame == 2){
+        image(ballWobble2, ballStationaryX*canvasScale, ballBottomY*canvasScale);
+      }
+      
+    }
+
     //Filter Code
     if (grayscale == true) {
       filter(GRAY);
     }
+
+    
+
   }
 }
 
@@ -415,10 +616,13 @@ function screenInteract() {
         mouseY > 109 * canvasScale &&
         mouseY < (109 + 24) * canvasScale
       ) {
-        encounterNearlyDone = true;
-        currentMenu = "none";
-        encounterMenu = false;
-        encounterText = "Got away safely!";
+        setTimeout(() => {
+          encounterNearlyDone = true;
+          currentMenu = "none";
+          encounterMenu = false;
+          encounterText = "Got away safely!";
+        }, 10);
+        
         //encounterComplete();
       }
     }
@@ -432,9 +636,10 @@ function screenInteract() {
         mouseY < (109 + 24) * canvasScale &&
         playerData.pokeballs.poke > 0
       ) {
-        calcCatch(encounterPokemon.capture_rate, encounterLevel, 1);
+        throwItem("pokeball");
         currentMenu = "none";
         playerData.pokeballs.poke--;
+        
       }
 
       if (
@@ -444,9 +649,10 @@ function screenInteract() {
         mouseY < (109 + 24) * canvasScale &&
         playerData.pokeballs.great > 0
       ) {
-        calcCatch(encounterPokemon.capture_rate, encounterLevel, 1.5);
+        throwItem("greatball");
         currentMenu = "none";
         playerData.pokeballs.great--;
+        
       }
 
       if (
@@ -456,9 +662,11 @@ function screenInteract() {
         mouseY < (109 + 24) * canvasScale &&
         playerData.pokeballs.ultra > 0
       ) {
-        calcCatch(encounterPokemon.capture_rate, encounterLevel, 2);
+        
+        throwItem("ultraball");
         currentMenu = "none"
         playerData.pokeballs.ultra--;
+        
       }
     }
   }
