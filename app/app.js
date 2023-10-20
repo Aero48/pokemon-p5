@@ -34,7 +34,7 @@ let locationPokemon = [
   },
   {
     name: "wurmple",
-    poolVal: 50000,
+    poolVal: 50,
     minLevel: 5,
     maxLevel: 10,
   },
