@@ -16,41 +16,50 @@ let playerData = {
 let locationPokemon = [
   {
     name: "pidgey",
-    poolVal: 30,
+    poolVal: 50,
     minLevel: 5,
     maxLevel: 10,
   },
   {
-    name: "tentacruel",
-    poolVal: 30,
-    minLevel: 20,
-    maxLevel: 30,
+    name: "zigzagoon",
+    poolVal: 50,
+    minLevel: 5,
+    maxLevel: 10,
   },
   {
-    name: "ditto",
+    name: "sentret",
+    poolVal: 50,
+    minLevel: 5,
+    maxLevel: 10,
+  },
+  {
+    name: "wurmple",
+    poolVal: 50000,
+    minLevel: 5,
+    maxLevel: 10,
+  },
+  {
+    name: "oddish",
     poolVal: 20,
-    minLevel: 20,
-    maxLevel: 30,
+    minLevel: 7,
+    maxLevel: 10,
   },
   {
-    name: "drifblim",
-    poolVal: 20,
-    minLevel: 20,
-    maxLevel: 30,
-  },
-  {
-    name: "gligar",
-    poolVal: 30,
-    minLevel: 17,
-    maxLevel: 30,
-  },
-  {
-    name: "jumpluff",
-    poolVal: 30,
-    minLevel: 40,
-    maxLevel: 60,
-  },
+    name: "paras",
+    poolVal: 25,
+    minLevel: 7,
+    maxLevel: 10,
+  }
 ];
+
+class TallGrass {
+  isShaking = false;
+  constructor(x, y, isShaking) {
+    this.x = x;
+    this.y = y;
+    this.isShaking = isShaking;
+  }
+}
 
 let pokemon;
 let trainer;
@@ -62,6 +71,11 @@ let runBtn;
 let throwable;
 let ballBottom;
 let ballTop;
+
+let overworldLocation = "path";
+let tallGrassList = [];
+let shakeXOffset = 0;
+let shakeYOffset = 0;
 
 let wobbleFrame = 0;
 
@@ -104,8 +118,13 @@ let pokeFont;
 
 // Booleans
 
+// True when in the overworld
+let inOverworld = true;
+
+let encounterStartAnim = false;
+
 // True when in a Pokemon Encounter
-let inEncounter = true;
+let inEncounter = false;
 // True when encounter is interactable (after animation is complete)
 let encounterInteract = false;
 // True when encounter menu is interactive
@@ -145,6 +164,35 @@ function updateCanvasScale() {
   }
 }
 
+// Initializes tall grass in overworld
+function initOverworld(){
+  console.log("init overworld")
+  tallGrassList = [];
+  if (overworldLocation == "path"){
+    tallGrassList.push(new TallGrass(80,32));
+    tallGrassList.push(new TallGrass(96,32));
+    tallGrassList.push(new TallGrass(80,48));
+    tallGrassList.push(new TallGrass(96,48));
+    tallGrassList.push(new TallGrass(80,64));
+    tallGrassList.push(new TallGrass(96,64));
+    tallGrassList.push(new TallGrass(80,80));
+    tallGrassList.push(new TallGrass(96,80));
+    tallGrassList.push(new TallGrass(80,96));
+    tallGrassList.push(new TallGrass(96,96));
+    tallGrassList.push(new TallGrass(80,112));
+    tallGrassList.push(new TallGrass(96,112));
+  }
+}
+
+//Picks a random tall grass to shake
+function grassShake(){
+  let shakeRand = Math.ceil(random(0, tallGrassList.length))-1;
+  tallGrassList[shakeRand].isShaking=true;
+  setTimeout(() => {
+    tallGrassList[shakeRand].isShaking=false;
+  }, random(3000, 10000));
+}
+
 // Runs before encounter starts
 async function preEncounter(poke) {
   await $.getJSON(
@@ -166,7 +214,12 @@ async function preEncounter(poke) {
 
 // Runs when preEncounter is finished
 async function encounter(poke) {
+  inEncounter = true;
+  inOverworld = false;
+  encounterText = "";
   pokemon = await loadImage(`./images/${poke}.png`);
+  pokeX = -56;
+  trainerX = 208;
   targetPokeX = 96;
   targetTrainerX = 16;
   grayscale = true;
@@ -313,6 +366,10 @@ function encounterComplete() {
   pokeInBall = false;
   ballRocking = false;
   ballCaught = false;
+
+  inOverworld = true;
+  initOverworld();
+  encounterStartAnim = false;
   
 }
 
@@ -427,6 +484,9 @@ function preload() {
   ballStationary = loadImage("./images/pokeball.png");
   ballWobble1 = loadImage("./images/pokeball_1.png");
   ballWobble2 = loadImage("./images/pokeball_2.png");
+
+  overworldBG = loadImage("./images/overworld_1.png");
+  tallGrassImg = loadImage("./images/tall_grass.png");
 }
 
 // Setup function for p5. Initializes canvas & fonts
@@ -437,13 +497,39 @@ function setup() {
 
   textFont(pokeFont);
 
-  preEncounter(randomPokemon(locationPokemon)); //TEMPORARY
+  initOverworld();
+  setInterval(() => {
+    if (!encounterStartAnim && inOverworld){
+      grassShake();
+    }
+  }, random(5000,18000))
+
+  //preEncounter(randomPokemon(locationPokemon)); //TEMPORARY
   //encounter(encounterPokemon);
 }
 
 // Runs every frame in p5.
 function draw() {
   background(255);
+
+  // Everything to render only when in overworld
+  if (inOverworld) {
+    overworldBG.resizeNN(160*canvasScale, 144*canvasScale);
+    tallGrassImg.resizeNN(16*canvasScale, 16*canvasScale);
+    image(overworldBG, 0, 0);
+
+    
+    tallGrassList.forEach((grass) => {
+      if(grass.isShaking && !encounterStartAnim){
+        push();
+        translate(random(-2,2)*canvasScale, 0);
+        image(tallGrassImg, (grass.x+shakeXOffset)*canvasScale, (grass.y+shakeYOffset)*canvasScale);
+        pop();
+      }else{
+        image(tallGrassImg, (grass.x+shakeXOffset)*canvasScale, (grass.y+shakeYOffset)*canvasScale);
+      }
+    })
+  }
 
   // Everything to render only during an encounter
   if (inEncounter) {
@@ -576,6 +662,22 @@ function windowResized() {
 }
 
 function screenInteract() {
+  if (inOverworld){
+    tallGrassList.forEach((grass) => {
+      if (mouseX > grass.x*canvasScale && 
+        mouseX < (grass.x + 16)*canvasScale &&
+        mouseY > grass.y*canvasScale &&
+        mouseY < (grass.y + 16)*canvasScale &&
+        grass.isShaking &&
+        !encounterStartAnim){
+          console.log("test");
+          encounterStartAnim = true;
+          preEncounter(randomPokemon(locationPokemon));
+
+        }
+    })
+  }
+
   //Either moves on to main encounter menu, or ends the encounter depending on booleans
   if (encounterInteract & !encounterMenu) {
     if (!encounterNearlyDone) {
