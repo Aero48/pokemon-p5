@@ -280,13 +280,21 @@ function calcCatch(catchRate, level, ball) {
     throwBonus = 1;
   }
 
+  let berryBuff = 1;
+
+  if (activeBerry == "razz"){
+    berryBuff = 1.5;
+    //console.log("applying berry");
+  }
+
+
   console.log("catch rate: " + catchRate);
   console.log("level: " + level);
   console.log("ball: " + ball);
   console.log("throw bonus: " + throwBonus);
 
   let x =
-    (((3 * level - 2 * throwBonus) * (catchRate * ball)) / (3 * level)) * 1;
+    (((3 * level - 2 * throwBonus) * (catchRate * ball)) / (3 * level)) * berryBuff;
   console.log("X: " + x);
   let y = Math.floor(65535 / Math.sqrt(Math.sqrt(255 / x)));
   console.log("Y: " + y);
@@ -300,6 +308,7 @@ function calcCatch(catchRate, level, ball) {
       encounterMenu = false;
       ballRocking = false;
       pokeInBall = false;
+      activeBerry = "none";
       encounterText = "Oh no! The Pokémon broke free!";
       return;
     } else {
@@ -313,6 +322,7 @@ function calcCatch(catchRate, level, ball) {
           encounterMenu = false;
           ballRocking = false;
           pokeInBall = false;
+          activeBerry = "none";
           encounterText = "Aww! It appeared to be caught!";
           return;
         } else {
@@ -325,6 +335,7 @@ function calcCatch(catchRate, level, ball) {
               encounterMenu = false;
               ballRocking = false;
               pokeInBall = false;
+              activeBerry = "none";
               encounterText = "Aargh! Almost had it!";
               return;
             } else {
@@ -337,6 +348,7 @@ function calcCatch(catchRate, level, ball) {
                   encounterMenu = false;
                   ballRocking = false;
                   pokeInBall = false;
+                  activeBerry = "none";
                   encounterText = "Shoot! It was so close, too!";
                   return;
                 } else {
@@ -416,6 +428,36 @@ function throwItem(itemName){
       ballOpenAnim();
     },500)
   }
+
+  if (itemName == "razz"){
+    throwable = razzBerry;
+    
+    setTimeout(() => {
+      activeBerry = "razz";
+      currentMenu = "main"
+    },500)
+
+  }
+
+  if (itemName == "nanab"){
+    throwable = nanabBerry;
+    
+    setTimeout(() => {
+      activeBerry = "nanab";
+      currentMenu = "main"
+    },500)
+
+  }
+
+  if (itemName == "pinap"){
+    throwable = pinapBerry;
+    
+    setTimeout(() => {
+      activeBerry = "pinap";
+      currentMenu = "main"
+    },500)
+
+  }
   itemThrown = itemName;
   itemTargetX = 123;
   itemX = 65;
@@ -468,6 +510,18 @@ function preload() {
   pokeballBtn = loadImage("./images/pokeball_btn.png");
   greatballBtn = loadImage("./images/greatball_btn.png");
   ultraballBtn = loadImage("./images/ultraball_btn.png");
+
+  razzBtn = loadImage("./images/razz_btn.png");
+  nanabBtn = loadImage("./images/nanab_btn.png");
+  pinapBtn = loadImage("./images/pinap_btn.png");
+
+  razzBerry = loadImage("./images/razz_berry.png");
+  nanabBerry = loadImage("./images/nanab_berry.png");
+  pinapBerry = loadImage("./images/pinap_berry.png");
+
+  razzIcn = loadImage("./images/razz_berry_icn.png");
+  nanabIcn = loadImage("./images/nanab_berry_icn.png");
+  pinapIcn = loadImage("./images/pinap_berry_icn.png");
 
   throwable = loadImage("./images/ultraball.png");
   throwable = loadImage("./images/greatball.png");
@@ -550,6 +604,10 @@ function draw() {
     throwable.resizeNN(14*canvasScale, 12*canvasScale);
     ballTop.resizeNN(12*canvasScale, 12*canvasScale);
     ballBottom.resizeNN(12*canvasScale, 12*canvasScale);
+
+    razzIcn.resizeNN(8*canvasScale, 8*canvasScale);
+    nanabIcn.resizeNN(8*canvasScale, 8*canvasScale);
+    pinapIcn.resizeNN(8*canvasScale, 8*canvasScale);
     
     ballStationary.resizeNN(14*canvasScale, 12*canvasScale);
     ballWobble1.resizeNN(14*canvasScale, 12*canvasScale);
@@ -557,6 +615,18 @@ function draw() {
 
     if (pokeInBall == false){
       image(pokemon, pokeX * canvasScale, pokeY * canvasScale);
+    }
+
+    if (activeBerry!= "none"){
+      if (activeBerry == "razz"){
+        image(razzIcn, 16*canvasScale, 19*canvasScale);
+      }
+      if (activeBerry == "nanab"){
+        image(nanabIcn, 16*canvasScale, 19*canvasScale);
+      }
+      if (activeBerry == "pinap"){
+        image(pinapIcn, 16*canvasScale, 19*canvasScale);
+      }
     }
     
     image(trainer, trainerX * canvasScale, trainerY * canvasScale);
@@ -604,6 +674,20 @@ function draw() {
         text("x" + playerData.pokeballs.poke, 27 * canvasScale, 126 * canvasScale);
         text("x" + playerData.pokeballs.great, 75 * canvasScale, 126 * canvasScale);
         text("x" + playerData.pokeballs.ultra, 123 * canvasScale, 126 * canvasScale);
+      }
+
+      if (currentMenu == "item") {
+        razzBtn.resizeNN(48 * canvasScale, 24 * canvasScale);
+        nanabBtn.resizeNN(48 * canvasScale, 24 * canvasScale);
+        pinapBtn.resizeNN(48 * canvasScale, 24 * canvasScale);
+
+        image(razzBtn, 8 * canvasScale, 109 * canvasScale);
+        image(nanabBtn, 56 * canvasScale, 109 * canvasScale);
+        image(pinapBtn, 104 * canvasScale, 109 * canvasScale);
+
+        text("x" + playerData.berries.razz, 27 * canvasScale, 126 * canvasScale);
+        text("x" + playerData.berries.nanab, 75 * canvasScale, 126 * canvasScale);
+        text("x" + playerData.berries.pinap, 123 * canvasScale, 126 * canvasScale);
       }
     }
 
@@ -707,9 +791,12 @@ function screenInteract() {
         mouseX > 56 * canvasScale &&
         mouseX < (56 + 48) * canvasScale &&
         mouseY > 109 * canvasScale &&
-        mouseY < (109 + 24) * canvasScale
+        mouseY < (109 + 24) * canvasScale &&
+        activeBerry == "none"
       ) {
-        currentMenu = "item";
+        setTimeout(() => {
+          currentMenu = "item";
+        }, 10);
       }
 
       if (
@@ -767,6 +854,49 @@ function screenInteract() {
         
         throwItem("ultraball");
         currentMenu = "none"
+        playerData.pokeballs.ultra--;
+        
+      }
+    }
+
+    // POKEBALL MENU CLICK LISTENERS
+    if (currentMenu == "item") {
+      if (
+        mouseX > 8 * canvasScale &&
+        mouseX < (8 + 48) * canvasScale &&
+        mouseY > 109 * canvasScale &&
+        mouseY < (109 + 24) * canvasScale &&
+        playerData.pokeballs.poke > 0
+      ) {
+        throwItem("razz");
+        currentMenu = "none";
+        playerData.berries.razz--;
+        
+      }
+
+      if (
+        mouseX > 56 * canvasScale &&
+        mouseX < (56 + 48) * canvasScale &&
+        mouseY > 109 * canvasScale &&
+        mouseY < (109 + 24) * canvasScale &&
+        playerData.pokeballs.great > 0
+      ) {
+        throwItem("nanab");
+        currentMenu = "none";
+        playerData.berries.nanab--;
+        
+      }
+
+      if (
+        mouseX > 104 * canvasScale &&
+        mouseX < (104 + 48) * canvasScale &&
+        mouseY > 109 * canvasScale &&
+        mouseY < (109 + 24) * canvasScale &&
+        playerData.pokeballs.ultra > 0
+      ) {
+        
+        throwItem("pinap");
+        currentMenu = "pinap"
         playerData.pokeballs.ultra--;
         
       }
