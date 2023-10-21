@@ -77,6 +77,13 @@ let tallGrassList = [];
 let shakeXOffset = 0;
 let shakeYOffset = 0;
 
+let rectShow = false;
+let rectOpac = 0;
+let rectX = 0;
+let rectY = 0;
+let rectW = 160;
+let rectH = 144;
+
 let wobbleFrame = 0;
 
 let pokeX = -56;
@@ -193,8 +200,86 @@ function grassShake(){
   }, random(3000, 10000));
 }
 
+//Battle Transition
+function battleTransition(){
+  rectShow = true;
+  rectOpac = .25;
+  setTimeout(() => {
+    rectOpac = .50;
+  }, 50);
+  setTimeout(() => {
+    rectOpac = .75;
+  }, 100);
+  setTimeout(() => {
+    rectOpac = 1;
+  }, 150);
+  setTimeout(() => {
+    rectOpac = .50;
+  }, 200);
+  setTimeout(() => {
+    rectOpac = .25;
+  }, 250);
+  setTimeout(() => {
+    rectOpac = 0;
+  }, 300);
+  setTimeout(() => {
+    rectOpac = .25;
+  }, 350);
+  setTimeout(() => {
+    rectOpac = .50;
+  }, 400);
+  setTimeout(() => {
+    rectOpac = .75;
+  }, 450);
+  setTimeout(() => {
+    rectOpac = 1;
+  }, 500);
+  setTimeout(() => {
+    rectOpac = .75;
+  }, 550);
+  setTimeout(() => {
+    rectOpac = .50;
+  }, 600);
+  setTimeout(() => {
+    rectOpac = .25;
+  }, 650);
+  setTimeout(() => {
+    rectOpac = 0;
+  }, 700);
+
+  setTimeout(() => {
+    rectOpac = 1;
+    rectH = 16;
+  }, 1000);
+  setTimeout(() => {
+    rectH = 32;
+  }, 1050);
+  setTimeout(() => {
+    rectH = 48;
+  }, 1100);
+  setTimeout(() => {
+    rectH = 64;
+  }, 1150);
+  setTimeout(() => {
+    rectH = 80;
+  }, 1200);
+  setTimeout(() => {
+    rectH = 96;
+  }, 1250);
+  setTimeout(() => {
+    rectH = 112;
+  }, 1300);
+  setTimeout(() => {
+    rectH = 128;
+  }, 1350);
+  setTimeout(() => {
+    rectH = 144;
+  }, 1400);
+}
+
 // Runs before encounter starts
 async function preEncounter(poke) {
+  battleTransition();
   await $.getJSON(
     `https://pokeapi.co/api/v2/pokemon-species/${poke.name}`,
     function (data) {
@@ -214,6 +299,8 @@ async function preEncounter(poke) {
 
 // Runs when preEncounter is finished
 async function encounter(poke) {
+  rectOpac = 0;
+  rectShow = false;
   inEncounter = true;
   inOverworld = false;
   encounterText = "";
@@ -734,8 +821,16 @@ function draw() {
     }
 
     
-
   }
+  //Black rectangle used for transitions
+  if (rectShow){
+    push();
+    fill(0,0,0, rectOpac*255);
+    noStroke();
+    rect(rectX*canvasScale, rectY*canvasScale, rectW*canvasScale, rectH*canvasScale);
+    pop();
+  }
+  
 }
 
 // Resizes canvas when window is resized
